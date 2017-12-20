@@ -23,32 +23,32 @@ install:
   - conda info -a
   - conda env create -f environment.yml -n ease-env
   - source activate ease-env
-  - cd web_interface
+  - cd ease/web_interface
   - curl -L -O https://github.com/mozilla/geckodriver/releases/download/v0.18.0/geckodriver-v0.18.0-linux64.tar.gz
   - tar -vzxf geckodriver-v0.18.0-linux64.tar.gz
   - ./manage.py migrate
-  - cd ../
+  - cd
   - pip install coverage codecov
   - pip install -r requirements.txt
 
 script:
-  - cd web_interface
+  - cd ease/web_interface
   - coverage run --source '.' ./manage.py test
-  - cd ../
-  - cd alerts_engine
+  - cd
+  - cd ease/alerts_engine
   - coverage run run_tests.py
-  - cd ../
+  - cd
   - |
     if [[ $TRAVIS_REPO_SLUG == $OFFICIAL_REPO ]]; then
       set -e
       pip install doctr
       cd docs
       make html
-      cd ../
+      cd
       doctr deploy . --built-docs docs/_build/html --command "touch .nojekyll; git add .nojekyll"
     fi
 
 after_success:
-  - coverage combine alerts_engine/.coverage web_interface/.coverage
+  - coverage combine ease/alerts_engine/.coverage ease/web_interface/.coverage
   - coverage report -m 
   - codecov

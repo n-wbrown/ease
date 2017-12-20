@@ -28,24 +28,24 @@ install:
   - curl -L -O https://github.com/mozilla/geckodriver/releases/download/v0.18.0/geckodriver-v0.18.0-linux64.tar.gz
   - tar -vzxf geckodriver-v0.18.0-linux64.tar.gz
   - ./manage.py migrate
-  - cd
+  - cd $TRAVIS_BUILD_DIR
   - pip install coverage codecov
   - pip install -r requirements.txt
 
 script:
   - cd ease/web_interface
   - coverage run --source '.' ./manage.py test
-  - cd
+  - cd $TRAVIS_BUILD_DIR
   - cd ease/alerts_engine
   - coverage run run_tests.py
-  - cd
+  - cd $TRAVIS_BUILD_DIR
   - |
     if [[ $TRAVIS_REPO_SLUG == $OFFICIAL_REPO ]]; then
       set -e
       pip install doctr
       cd docs
       make html
-      cd
+      cd $TRAVIS_BUILD_DIR
       doctr deploy . --built-docs docs/_build/html --command "touch .nojekyll; git add .nojekyll"
     fi
 

@@ -21,7 +21,8 @@ install:
   - conda install conda-build anaconda-client
   - conda update -q conda
   - conda info -a
-  - conda env create -f environment.yml -n ease-env
+  # travis is currently experiencing a bug, the --quiet option appears to fix
+  - conda env create -f environment.yml -n ease-env --quiet
   - source activate ease-env
   - cd ease/web_interface
   - curl -L -O https://github.com/mozilla/geckodriver/releases/download/v0.18.0/geckodriver-v0.18.0-linux64.tar.gz

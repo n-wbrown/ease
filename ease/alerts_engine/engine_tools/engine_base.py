@@ -1,6 +1,8 @@
 import asyncio 
+import logging 
 
-
+logger = logging.getLogger(__name__)
+logger.propagate = False
 
 
 class scan_sequence:
@@ -21,6 +23,7 @@ class scan_sequence:
     def __init__(self,delay=0):
         self.delay = delay
         self.queue = asyncio.Queue()
+        self.qEvent = asyncio.Event()
         self.persist = True
 
 
@@ -38,18 +41,28 @@ class scan_sequence:
         been received in the queue. Return message or none 
         """ 
         # if the delay is 0, checking the q. will always take longer and so
-        # must be manually checked 
+        # must be manually checked
+
+
+        z = self.queue.qsize()
         if not self.queue.empty():
             msg = True
             message = await self.queue.get()
         else:
             msg = False
-        
+        '''
+        try:
+            message = self.queue.get_nowait()
+            msg = True
+        except asyncio.QueueEmpty:
+            msg = False 
+        '''
         done = set()
         running = set()
         if not msg:
             done, running = await asyncio.wait(
-                [self.queue.get(),asyncio.sleep(self.delay)],
+                #[self.queue.get(),asyncio.sleep(self.delay)],
+                [asyncio.sleep(self.delay)],
                 return_when = asyncio.FIRST_COMPLETED
             )
             completed = done.pop() 
@@ -58,7 +71,13 @@ class scan_sequence:
         #cleanly cancel which ever coro is still running (if any)
         for r in running:
             r.cancel()
-
+        '''
+        if message != None:
+            self.queue.task_done()
+            print(done)
+            print(msg)
+            print(message)
+        '''
         return message
 
     async def update(self,message):
@@ -66,13 +85,14 @@ class scan_sequence:
 
 
     async def message_handler(self,message):
-        print("starting message_handler")
+        logger.debug("starting message_handler")
         if message == self.end_code:
             self.persist = False
-        print("reached op if")
+
+        logger.debug("reached op if")
         if message == None:
-            print("evoking op")
-            print(self.operation)
+            logger.debug("evoking op")
+            logger.debug(str(self.operation))
             await self.operation()
 
     async def start(self):
@@ -80,7 +100,7 @@ class scan_sequence:
         return task
 
     async def cancel(self):
-        self.queue.put(self.end_code)
+        await self.queue.put(self.end_code)
 
     async def regulator(self):
         """
@@ -89,8 +109,9 @@ class scan_sequence:
         """
         running = set()
         done = set()
+        
         while self.persist:
-            print('running loop')
+            logger.debug('running loop')
             message = await self.wait_next()
-            print('in-loop message:',message)
+            logger.debug('in-loop message:'+str(message))
             await self.message_handler(message)

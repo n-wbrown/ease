@@ -62,15 +62,14 @@ def test_scan_sequence_regulator_repeated_operation(test_scan):
         task.cancel()
 
     loop = asyncio.get_event_loop()
-    
     loop.run_until_complete(test_mgr())
     logger.debug("final n: " +str(scanner.n))
     assert scanner.n > 0, "intended operation never ran"
 
-@pytest.mark.parametrize("m", list(range(10)))
+@pytest.mark.parametrize("m", ([0]*9)+[.01,.02,.03,.04,.05,.1,.2,.3,.4])
 def test_scan_sequence_regulator_termination(test_scan,m):
     scanner = test_scan
-    scanner.delay = 0
+    scanner.delay = m
 
 
     async def test_mgr():
@@ -85,7 +84,6 @@ def test_scan_sequence_regulator_termination(test_scan,m):
             pytest.fail("Failed to end")
 
     loop = asyncio.get_event_loop()
-    
     loop.run_until_complete(test_mgr())
     assert scanner.n > 0, "intended operation has not run"
     
@@ -102,7 +100,24 @@ def test_scan_sequence_cancel(test_scan):
             pytest.fail("Failed to cancel")
 
     loop = asyncio.get_event_loop()
-    
     loop.run_until_complete(test_mgr())
     assert scanner.n > 0, "intended operation has not run"
+
+def test_scan_sequence_start(test_scan):
+    scanner = test_scan
+
+    async def test_mgr():
+        #task = asyncio.ensure_future(scanner.regulator())
+        print(scanner.queue.qsize())
+        task = scanner.start()
+        await asyncio.sleep(.01)
+        await scanner.queue.put(scanner.end_code)
+        try:
+            await asyncio.wait_for(task,timeout=1)
+        except asyncio.TimeoutError:
+            pytest.fail("Failed to end")
     
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(test_mgr())
+    assert scanner.n > 0, "intended operation has not run"
+

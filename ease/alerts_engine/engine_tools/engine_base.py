@@ -2,7 +2,7 @@ import asyncio
 import logging 
 
 logger = logging.getLogger(__name__)
-logger.propagate = False
+#logger.propagate = False
 
 
 class scan_sequence:
@@ -95,8 +95,9 @@ class scan_sequence:
             logger.debug(str(self.operation))
             await self.operation()
 
-    async def start(self):
-        task = asyncio.ensure_future(self.regulator)
+    def start(self):
+        print(self.queue.qsize())
+        task = asyncio.ensure_future(self.regulator())
         return task
 
     async def cancel(self):

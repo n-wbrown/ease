@@ -10,7 +10,15 @@ class scan_sequence:
     scan_sequence is a base class for monitoring programs.
 
     This class lays out the basic tools for a repeated, time-regulated
-    process that can be cancelled and altered asynchronously 
+    process that can be cancelled and altered asynchronously. This class is
+    single threaded but its dependence on the asyncio libraries means that
+    multiple insntances of this class or subclasses can be run together on a
+    single thread, CPU resources permitting. 
+
+    Attributes
+    ----------
+    delay : float, optional
+        This specifies the time between executions of the operation. Can be 
     """
     end_code = "end"
     upd_code = "upd"
@@ -21,6 +29,14 @@ class scan_sequence:
         return __new__(cls)
     '''
     def __init__(self,delay=0):
+        """
+        Construct 
+
+        Parameters
+        ----------
+        delay : float, optional
+            specify a delay time between executions of the operation
+        """
         self.delay = delay
         self.queue = asyncio.Queue()
         self.qEvent = asyncio.Event()
@@ -29,27 +45,77 @@ class scan_sequence:
 
     async def operation(self):
         """
-        operation is intended to be overwritten in submodules. This is the
-        repeated method evoked by regulator
+        This should be overwritten in submodules. This is the method repeatedly
+        evoked by :func:`~engine_tools.engine_base.scan_sequence.regulator`.
         """
         raise NotImplementedError
-
-
+    
     async def wait_next(self):
         """
         block until either the delay time has been reached or a message has
         been received in the queue. Return message or none 
         """ 
-        # if the delay is 0, checking the q. will always take longer and so
-        # must be manually checked
-
-
+        message = None
         z = self.queue.qsize()
+        qtask = asyncio.ensure_future(self.queue.get())
+        
+        try:
+            await asyncio.wait_for(qtask,timeout=self.delay)
+            message = qtask.result()
+        except asyncio.TimeoutError:
+            message = None
+        
+        '''
+        stask = asyncio.ensure_future(asyncio.sleep(self.delay))
+        m = asyncio.Event()
+        m.clear()
+        def q():
+            stask.cancel
+            message = qtask.result()
+            m.set()
+        
+        def s():
+            qtask.cancel
+            message = stask.result()
+            m.set()
+
+
+        qtask.add_done_callback(q)
+        stask.add_done_callback(s)
+        await m.wait()
+        '''
+
+        '''
+        if qtask.done():
+            message = qtask.result()
+        else:
+            done, running = await asyncio.wait(
+                [qtask,asyncio.sleep(self.delay)],
+                #[asyncio.sleep(self.delay)],
+                return_when = asyncio.FIRST_COMPLETED
+            )
+            completed = done.pop() 
+            message = completed.result()
+            for r in running:
+                r.cancel()
+        '''
+        
+        return message
+
+    async def wait_nextg(self):
+        """
+        block until either the delay time has been reached or a message has
+        been received in the queue. Return message or none 
+        """ 
+        
+        z = self.queue.qsize()
+        '''
         if not self.queue.empty():
             msg = True
             message = await self.queue.get()
         else:
             msg = False
+        '''
         '''
         try:
             message = self.queue.get_nowait()
@@ -59,10 +125,11 @@ class scan_sequence:
         '''
         done = set()
         running = set()
-        if not msg:
+        #if not msg:
+        if 1:
             done, running = await asyncio.wait(
-                #[self.queue.get(),asyncio.sleep(self.delay)],
-                [asyncio.sleep(self.delay)],
+                [self.queue.get(),asyncio.sleep(self.delay)],
+                #[asyncio.sleep(self.delay)],
                 return_when = asyncio.FIRST_COMPLETED
             )
             completed = done.pop() 
@@ -96,21 +163,23 @@ class scan_sequence:
             await self.operation()
 
     def start(self):
-        print(self.queue.qsize())
+        logger.debug(self.queue.qsize())
         task = asyncio.ensure_future(self.regulator())
         return task
 
     async def cancel(self):
         await self.queue.put(self.end_code)
 
-    async def regulator(self):
+    async def regulator(self,run_at_start=True):
         """
         regulator schedules the regular calls to the operation method and
         listens for interruptions.
         """
         running = set()
         done = set()
-        
+        if run_at_start:
+            await self.message_handler(None)
+
         while self.persist:
             logger.debug('running loop')
             message = await self.wait_next()

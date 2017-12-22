@@ -23,6 +23,7 @@
 import os,sys
 #sys.path.insert(0, os.path.abspath('../web_interface/alert_config_app/forms.py'))
 sys.path.insert(0, os.path.abspath('../ease/web_interface/'))
+sys.path.insert(0, os.path.abspath('../ease/alerts_engine/'))
 
 import django
 os.environ['DJANGO_SETTINGS_MODULE'] = 'web_interface.settings'

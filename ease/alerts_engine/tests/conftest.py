@@ -16,4 +16,4 @@ def test_scan():
             self.n = self.n + 1
             logger.debug("n: " + str( self.n))
             
-    return test_scan()
+    return test_scan

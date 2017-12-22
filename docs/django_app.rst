@@ -1,3 +1,5 @@
+Django Web Interface
+********************
 
 .. toctree::
    :maxdepth: 2

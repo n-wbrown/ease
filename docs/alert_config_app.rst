@@ -1,5 +1,5 @@
-Django: alert_config_app
-************************
+alert_config_app
+****************
 
 The alert_config_app builds the django pages and database entries responsible
 for managing the alerts engine.

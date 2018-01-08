@@ -159,7 +159,9 @@ def test_scan_sequence_start(test_scan):
 
 
 def test_scan_sequence_regulator_parallel(test_scan):
-
+    """
+    Ensure multiple scanners can operate in parallel.
+    """ 
     n = 100
     scanners = []
     for i in range(n):

@@ -115,9 +115,9 @@ def test_scan_sequence_regulator_termination(test_scan, m):
     loop.run_until_complete(test_mgr())
     assert scanner.n > 0, "intended operation has not run"
     
-def test_scan_sequence_cancel(test_scan):
+def test_scan_sequence_end(test_scan):
     """
-    Ensure :func:`~engine_tools.engine_base.scan_sequence.cancel` properly
+    Ensure :func:`~engine_tools.engine_base.scan_sequence.end` properly
     terminates the regulator. 
     """
     scanner = test_scan()
@@ -190,3 +190,30 @@ def test_scan_sequence_regulator_parallel(test_scan):
     for i in range(n):
         print(scanners[i].n)
         assert scanners[i].n > 0, "intended operation has not run"
+
+
+def test_scan_sequence_arbitrary_message(test_scan):
+    """
+    Ensure that arbitrary message types can be passed 
+    """
+    scanner = test_scan()
+    
+    class g:
+        pass
+
+    async def test_mgr():
+        #task = asyncio.ensure_future(scanner.regulator())
+        print(scanner.queue.qsize())
+        task = scanner.start()
+        await asyncio.sleep(.01)
+        await scanner.queue.put(g())
+        await asyncio.sleep(.01)
+        await scanner.queue.put(scanner.end_code)
+        try:
+            await asyncio.wait_for(task,timeout=1)
+        except asyncio.TimeoutError:
+            pytest.fail("Failed to end")
+    
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(test_mgr())
+    assert scanner.n > 0, "intended operation has not run"

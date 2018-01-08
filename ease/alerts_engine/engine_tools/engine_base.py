@@ -20,18 +20,13 @@ class scan_sequence:
     delay : float, optional
         This specifies the time between executions of the operation. Can be 
     """
+    
     end_code = "end"
     upd_code = "upd"
     end_msg = "done"
-    '''
-    def __new__(cls):
-        #msg_maps = {None:cls.operation}
-        return __new__(cls)
-    '''
+    
     def __init__(self,delay=0):
         """
-        Construct 
-
         Parameters
         ----------
         delay : float, optional
@@ -65,99 +60,22 @@ class scan_sequence:
         except asyncio.TimeoutError:
             message = None
         
-        '''
-        stask = asyncio.ensure_future(asyncio.sleep(self.delay))
-        m = asyncio.Event()
-        m.clear()
-        def q():
-            stask.cancel
-            message = qtask.result()
-            m.set()
-        
-        def s():
-            qtask.cancel
-            message = stask.result()
-            m.set()
-
-
-        qtask.add_done_callback(q)
-        stask.add_done_callback(s)
-        await m.wait()
-        '''
-
-        '''
-        if qtask.done():
-            message = qtask.result()
-        else:
-            done, running = await asyncio.wait(
-                [qtask,asyncio.sleep(self.delay)],
-                #[asyncio.sleep(self.delay)],
-                return_when = asyncio.FIRST_COMPLETED
-            )
-            completed = done.pop() 
-            message = completed.result()
-            for r in running:
-                r.cancel()
-        '''
-        
-        return message
-
-    async def wait_nextg(self):
-        """
-        block until either the delay time has been reached or a message has
-        been received in the queue. Return message or none 
-        """ 
-        
-        z = self.queue.qsize()
-        '''
-        if not self.queue.empty():
-            msg = True
-            message = await self.queue.get()
-        else:
-            msg = False
-        '''
-        '''
-        try:
-            message = self.queue.get_nowait()
-            msg = True
-        except asyncio.QueueEmpty:
-            msg = False 
-        '''
-        done = set()
-        running = set()
-        #if not msg:
-        if 1:
-            done, running = await asyncio.wait(
-                [self.queue.get(),asyncio.sleep(self.delay)],
-                #[asyncio.sleep(self.delay)],
-                return_when = asyncio.FIRST_COMPLETED
-            )
-            completed = done.pop() 
-            message = completed.result()
-
-        #cleanly cancel which ever coro is still running (if any)
-        for r in running:
-            r.cancel()
-        '''
-        if message != None:
-            self.queue.task_done()
-            print(done)
-            print(msg)
-            print(message)
-        '''
         return message
 
     async def update(self,message):
         raise NotImplementedError
 
-
     async def message_handler(self,message):
         logger.debug("starting message_handler")
+        message_identified = False
+
         if message == self.end_code:
+            message_identified = True
             self.persist = False
 
         logger.debug("reached op if")
         if message == None:
+            message_identified = True
             logger.debug("evoking op")
             logger.debug(str(self.operation))
             await self.operation()

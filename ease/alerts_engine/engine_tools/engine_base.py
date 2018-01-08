@@ -167,7 +167,10 @@ class scan_sequence:
         task = asyncio.ensure_future(self.regulator())
         return task
 
-    async def cancel(self):
+    async def end(self):
+        """
+        Soft cancel method for cleanly terminating 
+        """
         await self.queue.put(self.end_code)
 
     async def regulator(self,run_at_start=True):

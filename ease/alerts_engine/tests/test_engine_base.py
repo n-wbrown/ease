@@ -125,7 +125,7 @@ def test_scan_sequence_cancel(test_scan):
     async def test_mgr():
         task = asyncio.ensure_future(scanner.regulator())
         await asyncio.sleep(.01)
-        await scanner.cancel()
+        await scanner.end()
         try:
             await asyncio.wait_for(task,timeout=1)
         except asyncio.TimeoutError:
@@ -177,7 +177,7 @@ def test_scan_sequence_regulator_parallel(test_scan):
             tasks.append(scanners[i].start())
         await asyncio.sleep(.1)
         for i in range(n):
-            await scanners[i].cancel()
+            await scanners[i].end()
          
             try:
                 await asyncio.wait_for(tasks[i],timeout=.1)

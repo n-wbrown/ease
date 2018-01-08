@@ -75,6 +75,10 @@ class generic_msg:
 
 
 class scan_seq_msg(generic_msg):
+    """
+    Subclass of generic_msg that supports reserved names for the update and end
+    codes.
+    """
 
     end_code = "scan_seq_msg END_CODE"
     update_code = "scan_seq_msg UPDATE_CODE"
@@ -118,3 +122,13 @@ class scan_seq_msg(generic_msg):
         Set this message to the update code
         """
         self.code = self.update_code
+
+def update_msg():
+    msg = scan_seq_msg()
+    msg.set_update()
+    return msg
+
+def end_msg():
+    msg = scan_seq_msg()
+    msg.set_end()
+    return msg

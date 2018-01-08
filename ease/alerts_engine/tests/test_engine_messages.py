@@ -1,5 +1,7 @@
 import pytest
-from engine_tools.engine_messages import scan_seq_msg, generic_msg
+from engine_tools.engine_messages import (
+    scan_seq_msg, generic_msg, update_msg, end_msg
+)
 import logging
 from time import sleep
 
@@ -53,6 +55,24 @@ def test_generic_msg_end():
     time2 = msg.last_change
     assert time1 != time2, "Failure to change last_change when setting content"
 
+
+def test_update_msg():
+    """
+    Ensure that the shortcut,
+    :func:`~engine_tools.engine_messages.update_msg`, can be used for creating
+    classes.
+    """
+    msg = update_msg()
+    assert msg.update, "Failure to be an update message"
+
+def test_end_msg():
+    """
+    Ensure that the shortcut,
+    :func:`~engine_tools.engine_messages.end_msg`, can be used for creating
+    classes.
+    """
+    msg = end_msg()
+    assert msg.end, "Failure to be an end message"
 
 def test_scan_seq_msg_end():
     """

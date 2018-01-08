@@ -1,7 +1,25 @@
 import datetime
 
 class scan_seq_msg:
-    end_code = "END_CODE"
+    """
+    Class for communicating with running scan sequences. Alterations to core
+    attributes :attr:`~engine_tools.engine_messages.scan_seq_msg.code` and 
+    attributes :attr:`~engine_tools.engine_messages.scan_seq_msg.content` are
+    timestamped.
+
+    Attributes
+    ----------
+    code
+        Header for message, includes header type.
+
+    content
+        Contains message information.
+
+    end
+        Returns true if the end code is being used 
+        
+    """
+    end_code = "scan_seq_msg END_CODE"
     i_last_change = None
     
     def __init__(self, code=None, content=None):
@@ -28,6 +46,8 @@ class scan_seq_msg:
         del self._code
         self._last_change = datetime.datetime.now()
 
+    code = property(_get_code, _set_code, _del_code)
+    
     def _get_content(self):
         return self._content
 
@@ -39,22 +59,40 @@ class scan_seq_msg:
         del self._content
         self._last_change = datetime.datetime.now()
 
-    code = property(_get_code, _set_code, _del_code)
-
     content = property(_get_content, _set_content, _del_code)
 
     @property
     def last_change(self):
+        """
+        Return the timestamp of the last change
+        
+        Returns
+        -------
+        datetime.datetime
+            Timestamp of last change
+        
+        """
         return self._last_change
 
     
 
     @property
     def end(self):
+        """
+        Return true if the end code is being used 
+        
+        Returns
+        -------
+        bool
+            True if this is an ending message 
+        """
         if self.code == self.end_code:
             return True
 
         return False
 
     def set_end(self):
+        """
+        Set this message to the ending code
+        """
         self.code = self.end_code

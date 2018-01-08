@@ -17,8 +17,8 @@ def test_scan_seq_msg_init():
 
 def test_scan_seq_msg_eq():
     """
-    Ensure that :func:`engine_messages.scan_seq_msg.__eq__` properly recognizes
-    identical messages
+    Ensure that :func:`engine_tools.engine_messages.scan_seq_msg.__eq__`
+    properly recognizes identical messages
     """
     msg_A = scan_seq_msg("code","content")
     msg_B = scan_seq_msg("code","content")
@@ -33,6 +33,11 @@ def test_scan_seq_msg_eq():
     assert msg_A != msg_B, "Failure to report different messages as unequal"
 
 def test_scan_seq_msg_end():
+    """
+    Ensure that the special end message uses the
+    :func:`~engine_tools.engine_messages.scan_seq_msg.end` property and  
+    :func:`~engine_tools.engine_messages.scan_seq_msg.set_end` function.  
+    """
     msg = scan_seq_msg()
     assert msg.end == False, "Failure to report as a non-ending message"
     
@@ -40,12 +45,23 @@ def test_scan_seq_msg_end():
     assert msg.end == True, "Failure to report as a ending message"
 
 def test_scan_seq_msg_end():
-    msg = scan_seq_msg()
-    
+    """
+    Ensure that the timestamp of the last change updates when a varialbe is
+    set.
+    """
+    msg = scan_seq_msg() 
+
     msg.code = "a"
     time1 = msg.last_change
     sleep(.01)
     msg.code = "b"
     time2 = msg.last_change
-    assert time1 != time2, "Failure to change last_change when setting data"
+    assert time1 != time2, "Failure to change last_change when setting code"
+
+    msg.content = "a"
+    time1 = msg.last_change
+    sleep(.01)
+    msg.content = "b"
+    time2 = msg.last_change
+    assert time1 != time2, "Failure to change last_change when setting content"
 

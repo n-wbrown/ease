@@ -44,6 +44,18 @@ def test_scan_seq_msg_end():
     msg.set_end()
     assert msg.end == True, "Failure to report as a ending message"
 
+def test_scan_seq_msg_update():
+    """
+    Ensure that the special end message uses the
+    :func:`~engine_tools.engine_messages.scan_seq_msg.update` property and  
+    :func:`~engine_tools.engine_messages.scan_seq_msg.set_update` function.  
+    """
+    msg = scan_seq_msg()
+    assert msg.update == False, "Failure to report as a non-ending message"
+    
+    msg.set_update()
+    assert msg.update == True, "Failure to report as a ending message"
+
 def test_scan_seq_msg_end():
     """
     Ensure that the timestamp of the last change updates when a varialbe is

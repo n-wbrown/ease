@@ -1,9 +1,9 @@
 import asyncio 
-import logging 
+import logging
+from .engine_messages import scan_seq_msg 
 
 logger = logging.getLogger(__name__)
 #logger.propagate = False
-
 
 class scan_sequence:
     """
@@ -34,7 +34,6 @@ class scan_sequence:
         """
         self.delay = delay
         self.queue = asyncio.Queue()
-        self.qEvent = asyncio.Event()
         self.persist = True
 
 
@@ -66,6 +65,14 @@ class scan_sequence:
         raise NotImplementedError
 
     async def message_handler(self,message):
+        """
+        Contains decision making logic for handling messages
+        
+        Parameters
+        ----------
+        message
+            Variable of any type to be handled 
+        """
         logger.debug("starting message_handler")
         message_identified = False
 

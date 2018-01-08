@@ -20,6 +20,7 @@ class scan_seq_msg:
         
     """
     end_code = "scan_seq_msg END_CODE"
+    update_code = "scan_seq_msg UPDATE_CODE"
     i_last_change = None
     
     def __init__(self, code=None, content=None):
@@ -72,9 +73,7 @@ class scan_seq_msg:
             Timestamp of last change
         
         """
-        return self._last_change
-
-    
+        return self._last_change 
 
     @property
     def end(self):
@@ -88,7 +87,6 @@ class scan_seq_msg:
         """
         if self.code == self.end_code:
             return True
-
         return False
 
     def set_end(self):
@@ -96,3 +94,23 @@ class scan_seq_msg:
         Set this message to the ending code
         """
         self.code = self.end_code
+    
+    @property
+    def update(self):
+        """
+        Return true if the update code is being used 
+        
+        Returns
+        -------
+        bool
+            True if this is an update message 
+        """
+        if self.code == self.update_code:
+            return True
+        return False
+
+    def set_update(self):
+        """
+        Set this message to the update code
+        """
+        self.code = self.update_code

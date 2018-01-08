@@ -1,6 +1,6 @@
 import datetime
 
-class scan_seq_msg:
+class generic_msg:
     """
     Class for communicating with running scan sequences. Alterations to core
     attributes :attr:`~engine_tools.engine_messages.scan_seq_msg.code` and 
@@ -19,8 +19,6 @@ class scan_seq_msg:
         Returns true if the end code is being used 
         
     """
-    end_code = "scan_seq_msg END_CODE"
-    update_code = "scan_seq_msg UPDATE_CODE"
     i_last_change = None
     
     def __init__(self, code=None, content=None):
@@ -61,7 +59,7 @@ class scan_seq_msg:
         self._last_change = datetime.datetime.now()
 
     content = property(_get_content, _set_content, _del_code)
-
+    
     @property
     def last_change(self):
         """
@@ -74,6 +72,12 @@ class scan_seq_msg:
         
         """
         return self._last_change 
+
+
+class scan_seq_msg(generic_msg):
+
+    end_code = "scan_seq_msg END_CODE"
+    update_code = "scan_seq_msg UPDATE_CODE"
 
     @property
     def end(self):

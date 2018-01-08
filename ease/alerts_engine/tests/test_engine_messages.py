@@ -1,6 +1,7 @@
 import pytest
 from engine_tools.engine_messages import scan_seq_msg
 import logging
+from time import sleep
 
 logger = logging.getLogger(__name__)
 
@@ -37,4 +38,14 @@ def test_scan_seq_msg_end():
     
     msg.set_end()
     assert msg.end == True, "Failure to report as a ending message"
+
+def test_scan_seq_msg_end():
+    msg = scan_seq_msg()
+    
+    msg.code = "a"
+    time1 = msg.last_change
+    sleep(.01)
+    msg.code = "b"
+    time2 = msg.last_change
+    assert time1 != time2, "Failure to change last_change when setting data"
 

@@ -7,6 +7,10 @@ logger.propagate = False
 
 @pytest.fixture(scope='function')
 def test_scan():
+    """
+    Pytest fixture for creating instances of the ScanSequence class with a
+    delay of zero and an operation that increments an integer.
+    """
     class test_scan(ScanSequence):
         def __init__(self):
             super().__init__(self)
@@ -21,6 +25,10 @@ def test_scan():
 
 @pytest.fixture(scope='function')
 def test_msgscan():
+    """
+    Pytest fixture for creating instances of the MsgScanSequence class with a
+    delay of zero and an operation that increments an integer.
+    """
     class test_msgscan(MsgScanSequence):
         def __init__(self):
             super().__init__(self)

@@ -1,45 +1,45 @@
 import pytest
 from engine_tools.engine_messages import (
-    scan_seq_msg, generic_msg, update_msg, end_msg
+    ScanSeqMsg, ScanSeqMsg, update_msg, end_msg
 )
 import logging
 from time import sleep
 
 logger = logging.getLogger(__name__)
 
-def test_generic_msg_init():
+def test_ScanSeqMsg_init():
     """
-    Ensure that :class:`~engine_tools.engine_messages.generic_msg` can be
+    Ensure that :class:`~engine_tools.engine_messages.ScanSeqMsg` can be
     instantiated without errors
     """
     try:
-        msg = generic_msg("test_code","test_content")
+        msg = ScanSeqMsg("test_code","test_content")
     except:
-        pytest.fail("constructing new scan_seq_msg failed")
+        pytest.fail("constructing new ScanSeqMsg failed")
 
-def test_generic_msg_eq():
+def test_ScanSeqMsg_eq():
     """
-    Ensure that :func:`engine_tools.engine_messages.generic_msg.__eq__`
+    Ensure that :func:`engine_tools.engine_messages.ScanSeqMsg.__eq__`
     properly recognizes identical messages
     """
-    msg_A = generic_msg("code","content")
-    msg_B = generic_msg("code","content")
+    msg_A = ScanSeqMsg("code","content")
+    msg_B = ScanSeqMsg("code","content")
     assert msg_A == msg_B, "Failure to report identical messages as equal"
 
-    msg_A = generic_msg("code","content0")
-    msg_B = generic_msg("code","content")
+    msg_A = ScanSeqMsg("code","content0")
+    msg_B = ScanSeqMsg("code","content")
     assert msg_A != msg_B, "Failure to report different messages as unequal"
 
-    msg_A = generic_msg("code0","content")
-    msg_B = generic_msg("code","content")
+    msg_A = ScanSeqMsg("code0","content")
+    msg_B = ScanSeqMsg("code","content")
     assert msg_A != msg_B, "Failure to report different messages as unequal"
 
-def test_generic_msg_end():
+def test_ScanSeqMsg_end():
     """
     Ensure that the timestamp of the last change updates when a varialbe is
     set.
     """
-    msg = generic_msg() 
+    msg = ScanSeqMsg() 
 
     msg.code = "a"
     time1 = msg.last_change
@@ -74,25 +74,25 @@ def test_end_msg():
     msg = end_msg()
     assert msg.end, "Failure to be an end message"
 
-def test_scan_seq_msg_end():
+def test_ScanSeqMsg_end():
     """
     Ensure that the special end message uses the
-    :func:`~engine_tools.engine_messages.scan_seq_msg.end` property and  
-    :func:`~engine_tools.engine_messages.scan_seq_msg.set_end` function.  
+    :func:`~engine_tools.engine_messages.ScanSeqMsg.end` property and  
+    :func:`~engine_tools.engine_messages.ScanSeqMsg.set_end` function.  
     """
-    msg = scan_seq_msg()
+    msg = ScanSeqMsg()
     assert msg.end == False, "Failure to report as a non-ending message"
     
     msg.set_end()
     assert msg.end == True, "Failure to report as a ending message"
 
-def test_scan_seq_msg_update():
+def test_ScanSeqMsg_update():
     """
     Ensure that the special end message uses the
-    :func:`~engine_tools.engine_messages.scan_seq_msg.update` property and  
-    :func:`~engine_tools.engine_messages.scan_seq_msg.set_update` function.  
+    :func:`~engine_tools.engine_messages.ScanSeqMsg.update` property and  
+    :func:`~engine_tools.engine_messages.ScanSeqMsg.set_update` function.  
     """
-    msg = scan_seq_msg()
+    msg = ScanSeqMsg()
     assert msg.update == False, "Failure to report as a non-ending message"
     
     msg.set_update()

@@ -1,11 +1,19 @@
 import datetime
+import logging
 
-class generic_msg:
+logger = logging.getLogger(__name__)
+class GenericMsg:
     """
-    Class for communicating with running scan sequences. Alterations to core
-    attributes :attr:`~engine_tools.engine_messages.scan_seq_msg.code` and 
-    attributes :attr:`~engine_tools.engine_messages.scan_seq_msg.content` are
-    timestamped.
+    Class for communicating with running scan sequences. 
+    
+    Alterations to core
+    attributes :attr:`~engine_tools.engine_messages.ScanSeqMsg.code` and 
+    attributes :attr:`~engine_tools.engine_messages.ScanSeqMsg.content` are
+    automatically timestamped.
+
+    Supports equality tests. Two messages are considered equal if their code
+    and content are equal. Equality does not depend upon timestamps. 
+
 
     Attributes
     ----------
@@ -13,11 +21,7 @@ class generic_msg:
         Header for message, includes header type.
 
     content
-        Contains message information.
-
-    end
-        Returns true if the end code is being used 
-        
+        Contains message information. 
     """
     i_last_change = None
     
@@ -73,15 +77,15 @@ class generic_msg:
         """
         return self._last_change 
 
-
-class scan_seq_msg(generic_msg):
+class ScanSeqMsg(GenericMsg):
     """
-    Subclass of generic_msg that supports reserved names for the update and end
+    Subclass of GenericMsg that supports reserved names for the update and end
     codes.
+    
     """
 
-    end_code = "scan_seq_msg END_CODE"
-    update_code = "scan_seq_msg UPDATE_CODE"
+    end_code = "ScanSeqMsg END_CODE"
+    update_code = "ScanSeqMsg UPDATE_CODE"
 
     @property
     def end(self):
@@ -124,11 +128,11 @@ class scan_seq_msg(generic_msg):
         self.code = self.update_code
 
 def update_msg():
-    msg = scan_seq_msg()
+    msg = ScanSeqMsg()
     msg.set_update()
     return msg
 
 def end_msg():
-    msg = scan_seq_msg()
+    msg = ScanSeqMsg()
     msg.set_end()
     return msg

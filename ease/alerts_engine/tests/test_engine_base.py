@@ -157,6 +157,26 @@ def test_ScanSequence_start(test_scan):
     loop.run_until_complete(test_mgr())
     assert scanner.n > 0, "intended operation has not run"
 
+def test_ScanSequence_send(test_scan):
+    """
+    Ensure :func:`~engine_tools.engine_base.ScanSequence.send` shortcut 
+    properly adds messages to the queue.  
+    """
+    scanner = test_scan()
+
+    async def test_mgr():
+        task = asyncio.ensure_future(scanner.regulator())
+        await asyncio.sleep(.01)
+        await scanner.send(scanner.end_code)
+        try:
+            await asyncio.wait_for(task,timeout=1)
+        except asyncio.TimeoutError:
+            pytest.fail("Failed to send ending codes")
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(test_mgr())
+    assert scanner.n > 0, "intended operation has not run"
+
 def test_ScanSequence_regulator_parallel(test_scan):
     """
     Ensure multiple scanners can operate in parallel.

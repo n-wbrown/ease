@@ -48,6 +48,7 @@ dependencies:
 - sip=4.18=py36_0
 - six=1.10.0=py36_0
 - sqlite=3.13.0=0
+- sphinx-rtd-theme==0.2.5b2
 - tk=8.5.18=0
 - traitlets=4.3.2=py36_0
 - wcwidth=0.1.7=py36_0

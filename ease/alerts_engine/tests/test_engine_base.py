@@ -1,20 +1,20 @@
 import pytest
 import asyncio
 from engine_tools.engine_base import scan_sequence
+from engine_tools.engine_messages import end_msg, update_msg
 import logging 
 
 logger = logging.getLogger(__name__)
 #logger.propagate = False
 def test_scan_sequence_init():
     """
-    Ensure :class:`~engine_tools.engine_base.scan_sequence.wait_next` can be
+    Ensure :class:`~engine_tools.engine_base.scan_sequence` can be
     instantiated without errors.
     """
     try:
         scanner = scan_sequence()
     except:
         pytest.fail("constructing new scan_sequence failed")
-
 
 @pytest.mark.parametrize("msg", [1.2,{"abc":"def"},set([1,2,3])])
 def test_scan_sequence_wait_next(msg):
@@ -157,7 +157,6 @@ def test_scan_sequence_start(test_scan):
     loop.run_until_complete(test_mgr())
     assert scanner.n > 0, "intended operation has not run"
 
-
 def test_scan_sequence_regulator_parallel(test_scan):
     """
     Ensure multiple scanners can operate in parallel.
@@ -191,7 +190,6 @@ def test_scan_sequence_regulator_parallel(test_scan):
         print(scanners[i].n)
         assert scanners[i].n > 0, "intended operation has not run"
 
-
 def test_scan_sequence_arbitrary_message(test_scan):
     """
     Ensure that arbitrary message types can be passed 
@@ -217,3 +215,64 @@ def test_scan_sequence_arbitrary_message(test_scan):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(test_mgr())
     assert scanner.n > 0, "intended operation has not run"
+
+def test_scan_sequence_complete(test_scan):
+    """
+    Ensure that the combined features work.
+    """
+    scanner = test_scan()
+
+    async def test_mgr():
+        task = scanner.start()
+        await asyncio.sleep(.01)
+        await scanner.end()
+        try:
+            await asyncio.wait_for(task,timeout=1)
+        except asyncio.TimeoutError:
+            pytest.fail("Failed to end")
+        
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(test_mgr())
+    assert scanner.n > 0, "intended operation has not run"
+
+def test_MsgScanSequence_termination(test_msgscan):
+    """
+    Ensure that manually sending the end message works.
+    """
+    scanner = test_msgscan()
+
+    async def test_mgr():
+        task = scanner.start()
+        await asyncio.sleep(.01)
+        await scanner.queue.put(end_msg())
+        try:
+            await asyncio.wait_for(task,timeout=1)
+        except asyncio.TimeoutError:
+            pytest.fail("Failed to end")
+        
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(test_mgr())
+    assert scanner.n > 0, "intended operation has not run"
+
+def test_MsgScanSequence_end(test_msgscan):
+    """
+    Ensure :func:`~engine_tools.engine_base.MsgScanSequence.end` properly
+    terminates the regulator. 
+    """
+    scanner = test_msgscan()
+
+    async def test_mgr():
+        task = scanner.start()
+        await asyncio.sleep(.01)
+        await scanner.end()
+        try:
+            await asyncio.wait_for(task,timeout=1)
+        except asyncio.TimeoutError:
+            pytest.fail("Failed to end")
+        
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(test_mgr())
+    assert scanner.n > 0, "intended operation has not run"
+
+
+

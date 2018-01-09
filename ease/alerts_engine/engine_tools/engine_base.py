@@ -1,6 +1,6 @@
 import asyncio 
 import logging
-from .engine_messages import scan_seq_msg 
+from .engine_messages import scan_seq_msg, update_msg, end_msg 
 
 logger = logging.getLogger(__name__)
 #logger.propagate = False
@@ -57,9 +57,16 @@ class scan_sequence:
             await asyncio.wait_for(qtask,timeout=self.delay)
             message = qtask.result()
         except asyncio.TimeoutError:
-            message = None
+            #message = None
+            message = self.timeout_message()
         
         return message
+
+    def timeout_message(self):
+        return None
+
+    def end_message(self):
+        return self.end_code
 
     async def update(self,message):
         raise NotImplementedError
@@ -74,15 +81,12 @@ class scan_sequence:
             Variable of any type to be handled 
         """
         logger.debug("starting message_handler")
-        message_identified = False
 
         if message == self.end_code:
-            message_identified = True
             self.persist = False
 
         logger.debug("reached op if")
         if message == None:
-            message_identified = True
             logger.debug("evoking op")
             logger.debug(str(self.operation))
             await self.operation()
@@ -96,7 +100,7 @@ class scan_sequence:
         """
         Soft cancel method for cleanly terminating 
         """
-        await self.queue.put(self.end_code)
+        await self.queue.put(self.end_message())
 
     async def regulator(self,run_at_start=True):
         """
@@ -106,10 +110,39 @@ class scan_sequence:
         running = set()
         done = set()
         if run_at_start:
-            await self.message_handler(None)
+            await self.message_handler(self.timeout_message())
 
         while self.persist:
             logger.debug('running loop')
             message = await self.wait_next()
             logger.debug('in-loop message:'+str(message))
             await self.message_handler(message)
+
+class MsgScanSequence(scan_sequence):
+    async def message_handler(self,message):
+        """
+        Contains decision making logic for handling messages
+        
+        Parameters
+        ----------
+        message
+            Variable of any type to be handled 
+        """
+        logger.debug("starting message_handler")
+        if type(message) != scan_seq_msg:
+            print("TYPE:", type(message), "MESSAGE",message)
+
+        if message.end:
+            self.persist = False
+
+        logger.debug("reached op if")
+        if message.update:
+            logger.debug("evoking op")
+            logger.debug(str(self.operation))
+            await self.operation()
+
+    def timeout_message(self):
+        return update_msg()
+   
+    def end_message(self):
+        return end_msg()

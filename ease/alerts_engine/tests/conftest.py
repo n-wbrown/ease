@@ -1,5 +1,5 @@
 import pytest
-from engine_tools.engine_base import scan_sequence, MsgScanSequence
+from engine_tools.engine_base import ScanSequence, MsgScanSequence
 import logging
 
 logger = logging.getLogger(__name__)
@@ -7,7 +7,7 @@ logger.propagate = False
 
 @pytest.fixture(scope='function')
 def test_scan():
-    class test_scan(scan_sequence):
+    class test_scan(ScanSequence):
         def __init__(self):
             super().__init__(self)
             self.n=0

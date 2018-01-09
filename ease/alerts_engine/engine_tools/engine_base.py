@@ -5,9 +5,9 @@ from .engine_messages import scan_seq_msg, update_msg, end_msg
 logger = logging.getLogger(__name__)
 #logger.propagate = False
 
-class scan_sequence:
+class ScanSequence:
     """
-    scan_sequence is a base class for monitoring programs.
+    ScanSequence is a base class for monitoring programs.
 
     This class lays out the basic tools for a repeated, time-regulated
     process that can be cancelled and altered asynchronously. This class is
@@ -40,7 +40,7 @@ class scan_sequence:
     async def operation(self):
         """
         This should be overwritten in submodules. This is the method repeatedly
-        evoked by :func:`~engine_tools.engine_base.scan_sequence.regulator`.
+        evoked by :func:`~engine_tools.engine_base.ScanSequence.regulator`.
         """
         raise NotImplementedError
     
@@ -118,7 +118,7 @@ class scan_sequence:
             logger.debug('in-loop message:'+str(message))
             await self.message_handler(message)
 
-class MsgScanSequence(scan_sequence):
+class MsgScanSequence(ScanSequence):
     async def message_handler(self,message):
         """
         Contains decision making logic for handling messages

@@ -1,25 +1,25 @@
 import pytest
 import asyncio
-from engine_tools.engine_base import scan_sequence
+from engine_tools.engine_base import ScanSequence
 from engine_tools.engine_messages import end_msg, update_msg
 import logging 
 
 logger = logging.getLogger(__name__)
 #logger.propagate = False
-def test_scan_sequence_init():
+def test_ScanSequence_init():
     """
-    Ensure :class:`~engine_tools.engine_base.scan_sequence` can be
+    Ensure :class:`~engine_tools.engine_base.ScanSequence` can be
     instantiated without errors.
     """
     try:
-        scanner = scan_sequence()
+        scanner = ScanSequence()
     except:
-        pytest.fail("constructing new scan_sequence failed")
+        pytest.fail("constructing new ScanSequence failed")
 
 @pytest.mark.parametrize("msg", [1.2,{"abc":"def"},set([1,2,3])])
-def test_scan_sequence_wait_next(msg):
+def test_ScanSequence_wait_next(msg):
     """
-    Ensure :func:`~engine_tools.engine_base.scan_sequence.wait_next` can handle
+    Ensure :func:`~engine_tools.engine_base.ScanSequence.wait_next` can handle
     interruptions and timeouts
 
     This test is broken into three separate sections
@@ -30,7 +30,7 @@ def test_scan_sequence_wait_next(msg):
 
     Test parameterization makes sue that the message content is type-agnostic.
     """
-    scanner = scan_sequence()
+    scanner = ScanSequence()
     q = scanner.queue
 
     async def test_mgr():
@@ -69,9 +69,9 @@ def test_scan_sequence_wait_next(msg):
     loop = asyncio.get_event_loop()    
     loop.run_until_complete(test_mgr())
 
-def test_scan_sequence_regulator_repeated_operation(test_scan):
+def test_ScanSequence_regulator_repeated_operation(test_scan):
     """
-    Ensure :func:`~engine_tools.engine_base.scan_sequence.regulator` properly
+    Ensure :func:`~engine_tools.engine_base.ScanSequence.regulator` properly
     organizes the run cycle by checking for input and scheduling the operation
     """
     
@@ -88,9 +88,9 @@ def test_scan_sequence_regulator_repeated_operation(test_scan):
     assert scanner.n > 0, "intended operation never ran"
 
 @pytest.mark.parametrize("m", ([0]*9)+[.01,.02,.03,.04,.05,.1,.2,.3,.4])
-def test_scan_sequence_regulator_termination(test_scan, m):
+def test_ScanSequence_regulator_termination(test_scan, m):
     """
-    Ensure :func:`~engine_tools.engine_base.scan_sequence.regulator` properly
+    Ensure :func:`~engine_tools.engine_base.ScanSequence.regulator` properly
     terminates when the end code is sent.
 
     Parameterization tests various delay times. 0 Time delays have erred
@@ -115,9 +115,9 @@ def test_scan_sequence_regulator_termination(test_scan, m):
     loop.run_until_complete(test_mgr())
     assert scanner.n > 0, "intended operation has not run"
     
-def test_scan_sequence_end(test_scan):
+def test_ScanSequence_end(test_scan):
     """
-    Ensure :func:`~engine_tools.engine_base.scan_sequence.end` properly
+    Ensure :func:`~engine_tools.engine_base.ScanSequence.end` properly
     terminates the regulator. 
     """
     scanner = test_scan()
@@ -135,9 +135,9 @@ def test_scan_sequence_end(test_scan):
     loop.run_until_complete(test_mgr())
     assert scanner.n > 0, "intended operation has not run"
 
-def test_scan_sequence_start(test_scan):
+def test_ScanSequence_start(test_scan):
     """
-    Ensure :func:`~engine_tools.engine_base.scan_sequence.start` properly
+    Ensure :func:`~engine_tools.engine_base.ScanSequence.start` properly
     initiates the regulator. 
     """
     scanner = test_scan()
@@ -157,7 +157,7 @@ def test_scan_sequence_start(test_scan):
     loop.run_until_complete(test_mgr())
     assert scanner.n > 0, "intended operation has not run"
 
-def test_scan_sequence_regulator_parallel(test_scan):
+def test_ScanSequence_regulator_parallel(test_scan):
     """
     Ensure multiple scanners can operate in parallel.
     """ 
@@ -190,7 +190,7 @@ def test_scan_sequence_regulator_parallel(test_scan):
         print(scanners[i].n)
         assert scanners[i].n > 0, "intended operation has not run"
 
-def test_scan_sequence_arbitrary_message(test_scan):
+def test_ScanSequence_arbitrary_message(test_scan):
     """
     Ensure that arbitrary message types can be passed 
     """
@@ -216,7 +216,7 @@ def test_scan_sequence_arbitrary_message(test_scan):
     loop.run_until_complete(test_mgr())
     assert scanner.n > 0, "intended operation has not run"
 
-def test_scan_sequence_complete(test_scan):
+def test_ScanSequence_complete(test_scan):
     """
     Ensure that the combined features work.
     """
@@ -252,7 +252,7 @@ def test_MsgScanSequence_termination(test_msgscan):
         
     loop = asyncio.get_event_loop()
     loop.run_until_complete(test_mgr())
-    assert scanner.n > 0, "intended operation has not run"
+    assert scanner.n > 1, "intended operation has not run"
 
 def test_MsgScanSequence_end(test_msgscan):
     """
@@ -272,7 +272,7 @@ def test_MsgScanSequence_end(test_msgscan):
         
     loop = asyncio.get_event_loop()
     loop.run_until_complete(test_mgr())
-    assert scanner.n > 0, "intended operation has not run"
+    assert scanner.n > 1, "intended operation has not run"
 
 
 

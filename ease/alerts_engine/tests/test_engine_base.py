@@ -144,7 +144,6 @@ def test_ScanSequence_start(test_scan):
 
     async def test_mgr():
         #task = asyncio.ensure_future(scanner.regulator())
-        print(scanner.queue.qsize())
         task = scanner.start()
         await asyncio.sleep(.01)
         await scanner.queue.put(scanner.end_code)
@@ -186,10 +185,7 @@ def test_ScanSequence_regulator_parallel(test_scan):
     for i in range(n):
         scanners.append(test_scan())
         scanners[i].delay = 1 
-    for i in range(n):
-        print(scanners[i].n)
-    
-    
+
     async def test_mgr():
         tasks = []
         for i in range(n):
@@ -205,9 +201,7 @@ def test_ScanSequence_regulator_parallel(test_scan):
     
     loop = asyncio.get_event_loop()
     loop.run_until_complete(test_mgr())
-    print()
     for i in range(n):
-        print(scanners[i].n)
         assert scanners[i].n > 0, "intended operation has not run"
 
 def test_ScanSequence_arbitrary_message(test_scan):
@@ -220,8 +214,6 @@ def test_ScanSequence_arbitrary_message(test_scan):
         pass
 
     async def test_mgr():
-        #task = asyncio.ensure_future(scanner.regulator())
-        print(scanner.queue.qsize())
         task = scanner.start()
         await asyncio.sleep(.01)
         await scanner.queue.put(g())
